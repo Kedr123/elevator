@@ -1,6 +1,6 @@
 <template>
     <div class="floors" >
-        <button  v-for="i in floors" class="button" :class="{active:queue.includes(i)}">
+        <button  v-for="i in floors" class="button" :class="{active:queue.includes(i)}" :key="i" :id="i" @click="buttonClick($event)">
             {{ i }}
         </button>
     </div>
@@ -10,7 +10,8 @@
 export default {
     props:{
         floors:{},
-        queue:{}
+        queue:{},
+
     },
     data(){
         return{
@@ -18,12 +19,12 @@ export default {
         }
     },
     methods:{
-        buttonClick(id){
-            if(queue.includes(id)){
+        buttonClick(event){
+            if(this.queue.includes(Number(event.target.id))){
                 return;
             }
-
-            this.$emit("append", id)
+            
+            this.$emit("elevatorСall", Number(event.target.id))
         }
     }
 }
@@ -32,7 +33,7 @@ export default {
 <style scoped>
     .floors{
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: center;
         justify-content: space-around;
         height: 90%;

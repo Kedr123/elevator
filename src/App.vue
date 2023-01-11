@@ -1,10 +1,15 @@
 <template>
     <div class="container">
-        <div class="elevators">
-            <elevator :floors = "floors" :destinationFloor = "destinationFloor" :id="1" @update="checkElevator"/>
+        <div class="elevators" :style="{'width': 'calc(clamp(100px,calc(100%/5),150px)*'+countElevators+')'}">
+            <elevator v-for="i in countElevators"
+             v-on:vnodeMounted="()=>{statusElevators.push(false); destinationFloor.push(1) }" 
+             v-on:vnodeUnmounted="()=>{statusElevators.pop(); destinationFloor.pop()}"  
+             :floors = "floors" 
+             :destinationFloor = "destinationFloor[i-1]" 
+             :id="i-1" @update="checkElevator"/>
            
         </div> 
-        <floors :floors = "floors" :queue = "queue"/>  
+        <floors :floors = "floors" :queue = "queue" @elevatorСall="elevatorСall"/>  
     </div>
     
 </template>
@@ -17,17 +22,148 @@
         components:{
             Elevator, Floors,
         },
+        mounted(){
+            if(this.isSave) this.get();            
+        },
         data(){
             return {
-                destinationFloor:1,
+                // Количество лифтов
+                countElevators:1,
+                // Количество этажей
                 floors:5,
-                queue:[]
+                // Включить/выключить сохранение
+                isSave:false,
+                // включить/выключить приоритет для ближайшего свободного лифта
+                isPriority:false,
+
+                statusElevators:[],
+                destinationFloor:[],
+                queue:[],
+                queueElevators:[],
             }
         },
         methods:{
-            checkElevator(id){
-                console.log("лифт - "+id)
-            }
+            checkElevator(id,position){
+                this.statusElevators[id]=false;
+                
+                if(this.queue.indexOf(position)>=0) this.queue.splice(this.queue.indexOf(position), 1);
+
+                
+                this.nextCall();
+            },
+
+            elevatorСall(id){
+                if(this.destinationFloor.includes(id)){
+                    return;
+                }
+                
+                this.queue.push(id);
+                this.queueElevators.push(id);
+                
+                this.nextCall();
+            },
+
+            nextCall(){
+                
+                if(this.queueElevators.length!=0){
+                    if(!this.isPriority){
+                        for(let i = 0; i< this.countElevators; i++){
+                        
+                            if(this.statusElevators[i]==false){
+                                this.destinationFloor[i] = this.queueElevators.shift();
+                                this.statusElevators[i]=true;
+                                return;
+                            }    
+                        }
+                    }
+                    else{
+                        
+                        let floor = this.queueElevators.shift();
+                        let nearestElevator;
+
+                        for(let i = 0; i< this.countElevators; i++){
+                        
+                            if(this.statusElevators[i]==false){
+                                 
+                                if(nearestElevator==undefined){
+                                    nearestElevator = i;
+                                }
+                                else if((floor - this.destinationFloor[nearestElevator])**2>(floor - this.destinationFloor[i])**2) {
+                                    nearestElevator = i;
+                                }
+
+                            }
+                        
+                        }
+
+                        this.destinationFloor[nearestElevator]=floor;
+                        this.statusElevators[nearestElevator]=true;
+
+                    }  
+                }
+            }, 
+                
+
+        
+
+
+            save(){
+                if(this.isSave){
+                    localStorage.setItem('countElevators', this.countElevators);
+                    localStorage.setItem('destinationFloor', this.destinationFloor);
+                    localStorage.setItem('floors', this.floors);
+                    // localStorage.setItem('queue', this.queue);
+                    // localStorage.setItem('queueElevators', this.queueElevators);
+                    // localStorage.setItem('statusElevators', this.statusElevators);
+                }
+            },
+
+            get(){
+                localStorage.getItem('countElevators')?this.countElevators=Number(localStorage.getItem('countElevators')):false;
+                localStorage.getItem('destinationFloor')?this.destinationFloor = localStorage.getItem('destinationFloor').split(',').map(Number):false;
+                
+                localStorage.getItem('floors')?this.floors=Number(localStorage.getItem('floors')):false;
+                localStorage.getItem('queue')?this.queue=localStorage.getItem('queue').split(',').map(Number):false;
+                localStorage.getItem('queueElevators')?this.queueElevators=localStorage.getItem('queueElevators').split(',').map(Number):false;
+                localStorage.getItem('statusElevators')?this.statusElevators=localStorage.getItem('statusElevators').split(',').map(Number):false;
+
+            },
+        },
+        watch:{
+            countElevators(newValue){
+                this.save();
+            },
+            
+            destinationFloor:{
+                handler(newValue){
+                this.save();
+                }, deep:true,
+            },
+            
+
+            floors(newValue){
+               this.save(); 
+            },
+
+            queue:{
+                handler(newValue){
+                this.save();    
+                }, deep:true,
+            },
+
+            queueElevators:{
+                handler(newValue){
+                 this.save();   
+                }, deep:true,
+            },
+            
+            queue:{
+                statusElevators(newValue){
+                 this.save();   
+                }, deep:true,
+            },
+                       
+
         }
     }
 </script>
@@ -38,7 +174,6 @@
     display: flex;
     height: 100%;
     align-items: center;
-    width: clamp(100px,calc(100%/5),150px);
 }
 
 body{
@@ -46,12 +181,10 @@ body{
 }
 
 .container{
-    /* padding: 2%; */
     margin-left: 2%;
     display: flex;
     align-items: center;
     height: 100vh;
-    /* width: 100vw; */
 }
 </style>
 
