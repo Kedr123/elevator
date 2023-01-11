@@ -153,14 +153,7 @@
         watch:{
             countElevators(newValue){
                 localStorage.setItem('countElevators', this.countElevators);
-            },
-            
-            // destinationFloor:{
-            //     handler(newValue){
-            //     this.save();
-            //     }, deep:true,
-            // },
-            
+            },            
 
             floors(newValue){
                 localStorage.setItem('floors', this.floors);
