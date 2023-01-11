@@ -6,7 +6,9 @@
              v-on:vnodeUnmounted="()=>{statusElevators.pop(); destinationFloor.pop()}"  
              :floors = "floors" 
              :destinationFloor = "destinationFloor[i-1]" 
-             :id="i-1" @update="checkElevator"/>
+             :id="i-1"
+             :key="i-1"
+             @update="checkElevator"/>
            
         </div> 
         <floors :floors = "floors" :queue = "queue" @elevatorСall="elevatorСall"/>  
@@ -43,6 +45,7 @@
             }
         },
         methods:{
+            // Вызывается, когда лифт выполнил текущие задание
             checkElevator(id,position){
                 this.statusElevators[id]=false;
                 
@@ -52,6 +55,7 @@
                 this.nextCall();
             },
 
+            // Вызывается при нажатии на кнопку
             elevatorСall(id){
                 if(this.destinationFloor.includes(id)){
                     return;
@@ -63,9 +67,11 @@
                 this.nextCall();
             },
 
+            // Функция для нахождения свободного лифта и выдачи ему нового задания
             nextCall(){
                 
                 if(this.queueElevators.length!=0){
+                    // Простой вариант - приоритет всегда у свободного лифта с наименьшим индексом в массиве
                     if(!this.isPriority){
                         for(let i = 0; i< this.countElevators; i++){
                         
@@ -76,6 +82,7 @@
                             }    
                         }
                     }
+                    // Усложнённый вариант - приоритет у ближайшего свободного лифта 
                     else{
                         
                         let floor = this.queueElevators.shift();
@@ -106,27 +113,20 @@
 
         
 
-
+            // Функция для сохранения данных. Вызывается при изменении зависимостей, отслеживаемых через watch
             save(){
                 if(this.isSave){
                     localStorage.setItem('countElevators', this.countElevators);
                     localStorage.setItem('destinationFloor', this.destinationFloor);
                     localStorage.setItem('floors', this.floors);
-                    // localStorage.setItem('queue', this.queue);
-                    // localStorage.setItem('queueElevators', this.queueElevators);
-                    // localStorage.setItem('statusElevators', this.statusElevators);
                 }
             },
 
+            // Функция для получения сохранённых данных, вызывается после монтирования элемента App
             get(){
                 localStorage.getItem('countElevators')?this.countElevators=Number(localStorage.getItem('countElevators')):false;
                 localStorage.getItem('destinationFloor')?this.destinationFloor = localStorage.getItem('destinationFloor').split(',').map(Number):false;
-                
                 localStorage.getItem('floors')?this.floors=Number(localStorage.getItem('floors')):false;
-                localStorage.getItem('queue')?this.queue=localStorage.getItem('queue').split(',').map(Number):false;
-                localStorage.getItem('queueElevators')?this.queueElevators=localStorage.getItem('queueElevators').split(',').map(Number):false;
-                localStorage.getItem('statusElevators')?this.statusElevators=localStorage.getItem('statusElevators').split(',').map(Number):false;
-
             },
         },
         watch:{
@@ -143,26 +143,7 @@
 
             floors(newValue){
                this.save(); 
-            },
-
-            queue:{
-                handler(newValue){
-                this.save();    
-                }, deep:true,
-            },
-
-            queueElevators:{
-                handler(newValue){
-                 this.save();   
-                }, deep:true,
-            },
-            
-            queue:{
-                statusElevators(newValue){
-                 this.save();   
-                }, deep:true,
-            },
-                       
+            },                      
 
         }
     }

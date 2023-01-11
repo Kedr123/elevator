@@ -39,6 +39,8 @@ export default {
         }
     },
     methods:{
+        // Метод отвечает за передвижение лифта и отправляет сигнал о завершении задания родительскому компаненту
+        // Вызывается при изменении зависимости, пропса destinationFloor
         toFloor(floor){
             this.duration = floor-this.position;
             if( this.duration<0){
