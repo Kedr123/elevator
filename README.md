@@ -1,19 +1,16 @@
 # elevator
 
-## Project setup
+## Установка
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Запуск
 ```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
+npm run start
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Пораметры находятся в корневом компоненте App
+
+![Иллюстрация к проекту](https://github.com/Kedr123/images/blob/786bf64060a10160c6dcaf255c23d50599256bfe/%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B5.PNG)
+

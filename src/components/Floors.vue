@@ -1,6 +1,6 @@
 <template>
     <div class="floors" >
-        <button  v-for="i in floors" class="button" :class="{active:queue.includes(i)}" :key="i" :id="i" @click="buttonClick($event)">
+        <button  v-for="i in floors"  :class="{active:queue.includes(i), button:!queue.includes(i) }" :key="i" :id="i" @click="buttonClick($event)">
             {{ i }}
         </button>
     </div>
@@ -40,22 +40,32 @@ export default {
         margin-left: 3%;
     }
 
-    .button{
+    .button, .active{
         padding: 50%;
         border-radius: 50%;
-        width: 30px;
-        height: 30px;
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
 
         display: flex;
         justify-content: center;
         align-items: center;
 
-        background-color: white;
-        border: 2px solid blue;
+        background-color: #f8f8f8;
+        border: 2px solid #d0d0d0;
+        color: #898989;
+    }
+
+    .button:hover{
+        background-color: #dfeff4;
+        border: 2px solid #9dd6e6;
+        color: #738aac;
     }
 
     .active{
-        background-color: red;
+        background-color: #f4e8df;
+        border: 2px solid #e6c49d;
+        color: #ac8c73;
     }
 
 </style>

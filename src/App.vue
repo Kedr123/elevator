@@ -24,8 +24,16 @@
         components:{
             Elevator, Floors,
         },
+        beforeMount(){
+            if(this.isSave){
+                this.getCountElevators();
+                
+            }           
+        },
         mounted(){
-            if(this.isSave) this.get();            
+            this.getDestinationFloor();
+            this.get();
+            this.nextCall();
         },
         data(){
             return {
@@ -69,7 +77,7 @@
 
             // Функция для нахождения свободного лифта и выдачи ему нового задания
             nextCall(){
-                
+                this.save(); 
                 if(this.queueElevators.length!=0){
                     // Простой вариант - приоритет всегда у свободного лифта с наименьшим индексом в массиве
                     if(!this.isPriority){
@@ -78,6 +86,7 @@
                             if(this.statusElevators[i]==false){
                                 this.destinationFloor[i] = this.queueElevators.shift();
                                 this.statusElevators[i]=true;
+                                this.save(); 
                                 return;
                             }    
                         }
@@ -106,7 +115,8 @@
                         this.destinationFloor[nearestElevator]=floor;
                         this.statusElevators[nearestElevator]=true;
 
-                    }  
+                    } 
+                    this.save(); 
                 }
             }, 
                 
@@ -119,30 +129,41 @@
                     localStorage.setItem('countElevators', this.countElevators);
                     localStorage.setItem('destinationFloor', this.destinationFloor);
                     localStorage.setItem('floors', this.floors);
+                    localStorage.setItem('statusElevators', this.statusElevators);
+                    localStorage.setItem('queue', this.queue);
+                    localStorage.setItem('queueElevators', this.queueElevators);
                 }
             },
 
             // Функция для получения сохранённых данных, вызывается после монтирования элемента App
             get(){
-                localStorage.getItem('countElevators')?this.countElevators=Number(localStorage.getItem('countElevators')):false;
-                localStorage.getItem('destinationFloor')?this.destinationFloor = localStorage.getItem('destinationFloor').split(',').map(Number):false;
                 localStorage.getItem('floors')?this.floors=Number(localStorage.getItem('floors')):false;
+                localStorage.getItem('statusElevators')?this.statusElevators = localStorage.getItem('statusElevators').split(','):false;
+                localStorage.getItem('queue')?this.queue = localStorage.getItem('queue').split(',').map(Number):false;
+                localStorage.getItem('queueElevators')?this.queueElevators = localStorage.getItem('queueElevators').split(',').map(Number):false;
             },
+            getDestinationFloor(){
+                localStorage.getItem('destinationFloor')?this.destinationFloor = localStorage.getItem('destinationFloor').split(',').map(Number):false;
+            },
+            getCountElevators(){
+                localStorage.getItem('countElevators')?this.countElevators=Number(localStorage.getItem('countElevators')):false;
+            }
+        
         },
         watch:{
             countElevators(newValue){
-                this.save();
+                localStorage.setItem('countElevators', this.countElevators);
             },
             
-            destinationFloor:{
-                handler(newValue){
-                this.save();
-                }, deep:true,
-            },
+            // destinationFloor:{
+            //     handler(newValue){
+            //     this.save();
+            //     }, deep:true,
+            // },
             
 
             floors(newValue){
-               this.save(); 
+                localStorage.setItem('floors', this.floors);
             },                      
 
         }
